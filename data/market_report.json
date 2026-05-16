@@ -1,0 +1,12 @@
+{
+  "update_time": "2025-01-15 18:30",
+  "trade_date": "2025-01-15",
+  "summary": {
+    "top_sector": "玻璃基板",
+    "top_sector_score": 8,
+    "total_stocks": 28,
+    "strong_stocks": 6,
+    "breakout_count": 2,
+    "risk_count": 3
+  }
+}

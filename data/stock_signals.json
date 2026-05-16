@@ -1,0 +1,24 @@
+{
+  "update_time": "2025-01-15 18:30",
+  "all_stocks": [
+    {"ticker": "6504.TW", "name": "群翊", "sector": "玻璃基板", "close": 185.5, "change_pct": 3.2, "dist_ma20": 4.1, "score": 82, "score_label": "強勢觀察", "position": "主升初期", "vol_ratio": 1.8, "labels": ["回月線轉強"], "sector_score": 8},
+    {"ticker": "3486.TW", "name": "東捷", "sector": "玻璃基板", "close": 210.0, "change_pct": 5.1, "dist_ma20": 6.2, "score": 88, "score_label": "強勢核心", "position": "主升初期", "vol_ratio": 2.1, "labels": ["平台突破"], "sector_score": 8},
+    {"ticker": "4935.TW", "name": "鈦昇", "sector": "玻璃基板", "close": 320.0, "change_pct": 1.2, "dist_ma20": 31.0, "score": 48, "score_label": "偏弱", "position": "過熱區", "vol_ratio": 2.5, "labels": ["過熱勿追"], "sector_score": 8},
+    {"ticker": "3522.TW", "name": "雷科", "sector": "玻璃基板", "close": 155.0, "change_pct": -4.2, "dist_ma20": 8.5, "score": 55, "score_label": "中性", "position": "主升中段", "vol_ratio": 3.1, "labels": ["爆量長黑"], "sector_score": 8},
+    {"ticker": "6770.TW", "name": "弘塑", "sector": "CoWoS先進封裝", "close": 420.0, "change_pct": 4.8, "dist_ma20": 5.5, "score": 90, "score_label": "強勢核心", "position": "主升初期", "vol_ratio": 2.3, "labels": ["平台突破"], "sector_score": 6},
+    {"ticker": "6182.TW", "name": "旺矽", "sector": "CoWoS先進封裝", "close": 380.0, "change_pct": 6.2, "dist_ma20": 7.1, "score": 86, "score_label": "強勢核心", "position": "主升初期", "vol_ratio": 1.9, "labels": ["平台突破"], "sector_score": 6},
+    {"ticker": "3036.TW", "name": "聯亞", "sector": "CPO光通訊", "close": 95.0, "change_pct": 0.5, "dist_ma20": 2.1, "score": 74, "score_label": "強勢觀察", "position": "主升初期", "vol_ratio": 0.8, "labels": ["回月線轉強"], "sector_score": 7}
+  ],
+  "second_wave": [
+    {"ticker": "6504.TW", "name": "群翊", "sector": "玻璃基板", "close": 185.5, "change_pct": 3.2, "dist_ma20": 4.1, "score": 82, "score_label": "強勢觀察", "position": "主升初期", "vol_ratio": 1.8, "labels": ["回月線轉強"], "sector_score": 8},
+    {"ticker": "3036.TW", "name": "聯亞", "sector": "CPO光通訊", "close": 95.0, "change_pct": 0.5, "dist_ma20": 2.1, "score": 74, "score_label": "強勢觀察", "position": "主升初期", "vol_ratio": 0.8, "labels": ["回月線轉強"], "sector_score": 7}
+  ],
+  "breakout": [
+    {"ticker": "3486.TW", "name": "東捷", "sector": "玻璃基板", "close": 210.0, "change_pct": 5.1, "dist_ma20": 6.2, "score": 88, "score_label": "強勢核心", "position": "主升初期", "vol_ratio": 2.1, "labels": ["平台突破"], "sector_score": 8},
+    {"ticker": "6770.TW", "name": "弘塑", "sector": "CoWoS先進封裝", "close": 420.0, "change_pct": 4.8, "dist_ma20": 5.5, "score": 90, "score_label": "強勢核心", "position": "主升初期", "vol_ratio": 2.3, "labels": ["平台突破"], "sector_score": 6}
+  ],
+  "risk_alerts": [
+    {"ticker": "4935.TW", "name": "鈦昇", "sector": "玻璃基板", "close": 320.0, "change_pct": 1.2, "dist_ma20": 31.0, "score": 48, "score_label": "偏弱", "position": "過熱區", "vol_ratio": 2.5, "labels": ["過熱勿追"], "sector_score": 8},
+    {"ticker": "3522.TW", "name": "雷科", "sector": "玻璃基板", "close": 155.0, "change_pct": -4.2, "dist_ma20": 8.5, "score": 55, "score_label": "中性", "position": "主升中段", "vol_ratio": 3.1, "labels": ["爆量長黑"], "sector_score": 8}
+  ]
+}

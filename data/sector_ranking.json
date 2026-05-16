@@ -1,0 +1,54 @@
+{
+  "update_time": "2025-01-15 18:30",
+  "sectors": [
+    {
+      "name": "玻璃基板",
+      "score": 8,
+      "status": "主流啟動",
+      "details": ["3 檔漲幅 >3%", "2 檔爆量", "站月線比例高"],
+      "tickers": ["3522.TW", "3486.TW", "6504.TW", "4935.TW", "6146.TW"]
+    },
+    {
+      "name": "CPO光通訊",
+      "score": 7,
+      "status": "資金回流",
+      "details": ["2 檔漲幅 >3%", "2 檔爆量"],
+      "tickers": ["3023.TW", "3036.TW", "3163.TW", "6289.TW", "6150.TW"]
+    },
+    {
+      "name": "CoWoS先進封裝",
+      "score": 6,
+      "status": "資金回流",
+      "details": ["2 檔漲幅 >3%", "站月線比例高"],
+      "tickers": ["3511.TW", "6770.TW", "6187.TW", "6573.TW", "6182.TW"]
+    },
+    {
+      "name": "AI Server",
+      "score": 5,
+      "status": "觀察中",
+      "details": ["1 檔漲幅 >3%"],
+      "tickers": ["3231.TW", "2382.TW", "2356.TW", "3706.TW", "2376.TW"]
+    },
+    {
+      "name": "散熱",
+      "score": 4,
+      "status": "觀察中",
+      "details": ["站月線比例高"],
+      "tickers": ["3017.TW", "3324.TW", "3653.TW"]
+    },
+    {
+      "name": "PCB高階載板",
+      "score": 3,
+      "status": "非主流",
+      "details": [],
+      "tickers": ["3037.TW", "8046.TW", "3189.TW", "2383.TW"]
+    },
+    {
+      "name": "電源BBU",
+      "score": 2,
+      "status": "非主流",
+      "details": [],
+      "tickers": ["6703.TW", "2301.TW", "2308.TW"]
+    }
+  ]
+}

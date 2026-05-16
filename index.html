@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>台股盤後市場結構觀測系統</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* 背景 */
+    .bg-dashboard {
+      background: #0d1117;
+      min-height: 100vh;
+    }
+
+    /* 卡片 */
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+    }
+
+    /* 標籤樣式 */
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .tag-breakout    { background: #1a3a2a; color: #3fb950; border: 1px solid #238636; }
+    .tag-second      { background: #1a2a3a; color: #79c0ff; border: 1px solid #1f6feb; }
+    .tag-supplement  { background: #2a2a1a; color: #e3b341; border: 1px solid #9e6a03; }
+    .tag-hot         { background: #3a1a1a; color: #f85149; border: 1px solid #da3633; }
+    .tag-weak        { background: #2a1a2a; color: #d2a8ff; border: 1px solid #6e40c9; }
+    .tag-watch       { background: #1c2128; color: #8b949e; border: 1px solid #30363d; }
+
+    /* 位階標籤 */
+    .pos-early   { background: #1a3a2a; color: #3fb950; }
+    .pos-mid     { background: #2a2a1a; color: #e3b341; }
+    .pos-hot     { background: #3a1a1a; color: #f85149; }
+    .pos-pullback{ background: #1a2a3a; color: #79c0ff; }
+    .pos-weak    { background: #2a1a2a; color: #d2a8ff; }
+    .pos-default { background: #1c2128; color: #8b949e; }
+
+    /* 分數顏色 */
+    .score-high   { color: #3fb950; }
+    .score-mid    { color: #e3b341; }
+    .score-low    { color: #f85149; }
+
+    /* 族群強度 bar */
+    .strength-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: #30363d;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+
+    /* 漲跌色 */
+    .up   { color: #f85149; }
+    .down { color: #3fb950; }
+    .flat { color: #8b949e; }
+
+    /* 表格 row hover */
+    .table-row:hover { background: #1c2128; }
+
+    /* Pulse 動畫 */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #3fb950;
+      animation: pulse-dot 2s infinite;
+    }
+
+    /* 捲動條 */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #161b22; }
+    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-dashboard text-gray-300">
+
+  <!-- Header -->
+  <header class="border-b border-gray-800 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
+          <span class="text-white text-sm font-bold">市</span>
+        </div>
+        <div>
+          <h1 class="text-white font-bold text-lg leading-tight">台股盤後市場結構觀測</h1>
+          <p class="text-gray-500 text-xs">Market Structure Dashboard</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <div class="live-dot"></div>
+          <span class="text-gray-400 text-sm" id="update-time">載入中...</span>
+        </div>
+        <span class="text-gray-600 text-xs" id="trade-date"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Summary Bar -->
+  <div class="border-b border-gray-800 px-6 py-3">
+    <div class="max-w-7xl mx-auto flex items-center gap-8 text-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500">主流族群</span>
+        <span class="text-yellow-400 font-bold" id="top-sector">—</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500">強勢股</span>
+        <span class="text-green-400 font-bold mono" id="strong-count">—</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500">突破訊號</span>
+        <span class="text-blue-400 font-bold mono" id="breakout-count">—</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-gray-500">風險警示</span>
+        <span class="text-red-400 font-bold mono" id="risk-count">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+
+    <!-- 區塊一：主流族群排行 -->
+    <section class="card p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-yellow-400 text-lg">⚡</span>
+        <h2 class="text-white font-bold text-base">主流族群排行</h2>
+      </div>
+      <div id="sector-list" class="space-y-3"></div>
+    </section>
+
+    <!-- 下排三欄 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- 區塊二：平台突破候選 -->
+      <section class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-green-400 text-lg">🚀</span>
+          <h2 class="text-white font-bold text-base">平台突破候選</h2>
+        </div>
+        <div id="breakout-list" class="space-y-2"></div>
+      </section>
+
+      <!-- 區塊三：第二波觀察池 -->
+      <section class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-blue-400 text-lg">🔄</span>
+          <h2 class="text-white font-bold text-base">第二波觀察池</h2>
+        </div>
+        <div id="second-wave-list" class="space-y-2"></div>
+      </section>
+
+      <!-- 區塊四：過熱與風險警示 -->
+      <section class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="text-red-400 text-lg">⚠️</span>
+          <h2 class="text-white font-bold text-base">過熱與風險警示</h2>
+        </div>
+        <div id="risk-list" class="space-y-2"></div>
+      </section>
+
+    </div>
+
+    <!-- 區塊五：各族群強勢股明細 -->
+    <section class="card p-5">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-purple-400 text-lg">📊</span>
+        <h2 class="text-white font-bold text-base">各族群強勢股明細</h2>
+      </div>
+      <div id="stock-detail-list" class="space-y-4"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 px-6 py-4 mt-8">
+    <div class="max-w-7xl mx-auto text-center text-gray-600 text-xs">
+      本系統為盤後觀測工具，不提供買賣建議，不預測股價。資料來源：Yahoo Finance。
+    </div>
+  </footer>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

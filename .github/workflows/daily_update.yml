@@ -1,0 +1,42 @@
+name: 每日盤後資料更新
+
+on:
+  schedule:
+    # 每日 UTC 10:00 = 台灣時間 18:00
+    - cron: "0 10 * * 1-5"
+    # 每日 UTC 12:00 = 台灣時間 20:00（備用）
+    # - cron: "0 12 * * 1-5"
+  workflow_dispatch:  # 允許手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 取出程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安裝套件
+        run: |
+          pip install yfinance pandas numpy
+
+      - name: 執行資料更新
+        run: |
+          cd scripts
+          python update_market_data.py
+
+      - name: 提交更新的資料
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/
+          git diff --staged --quiet || git commit -m "📊 每日盤後資料更新 $(date +'%Y-%m-%d')"
+          git push
