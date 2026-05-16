@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 import time
 
 # ─────────────────────────────────────────
-# 族群定義（只需維護代號，名稱自動從官方查詢）
+# 族群定義（只需維護代號，名稱自動從 twstock 查詢）
 # ─────────────────────────────────────────
 SECTORS = {
     "玻璃基板": ["3522.TW", "3486.TW", "6504.TW", "4935.TW", "6146.TW", "5443.TW"],
@@ -32,56 +32,74 @@ ALL_TICKERS = list(set([t for tickers in SECTORS.values() for t in tickers]))
 
 def fetch_official_stock_names():
     """
-    從 TWSE + TPEx 官方 API 取得股票中文名稱對照表。
-    上市股票用 TWSE，上櫃股票用 TPEx。
-    回傳格式：{"2330.TW": "台積電", "3037.TW": "欣興", ...}
+    使用 twstock 套件查詢台股官方股票名稱。
+    同時驗證代號是否存在，若代號錯誤會明確警告。
+    回傳格式：{"2330.TW": "台積電", ...}
     """
-    name_map = {}
-
-    # ── 上市股票（TWSE）──
     try:
-        url_twse = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
-        resp = requests.get(url_twse, timeout=15)
+        import twstock
+
+        # 先更新代號資料庫（GitHub Actions 每次都是全新環境，必須執行）
+        print("  正在更新 twstock 代號資料庫...")
+        twstock.__update_codes()
+        print("  ✓ 代號資料庫更新完成")
+
+        codes = twstock.codes
+        name_map = {}
+        print(f"  ✓ twstock 載入成功，共 {len(codes)} 筆股票資料")
+
+        # 驗證每一個代號
+        print("\n[INFO] 驗證股票代號...")
+        for ticker in ALL_TICKERS:
+            code = ticker.replace(".TW", "")
+            if code in codes:
+                info = codes[code]
+                if info.type == "股票":
+                    name_map[ticker] = info.name
+                    print(f"  ✓ {ticker} → {info.name} ({info.market})")
+                else:
+                    print(f"  ⚠ {ticker} 類型為 {info.type}，非一般股票，名稱：{info.name}")
+            else:
+                print(f"  ✗ {ticker} → 代號不存在！請確認是否正確")
+
+        return name_map
+
+    except ImportError:
+        print("  ✗ twstock 未安裝，改用備用方式查詢...")
+        return fetch_names_fallback()
+
+
+def fetch_names_fallback():
+    """備用：從 TWSE 官方 API 取得名稱（twstock 安裝失敗時使用）"""
+    name_map = {}
+    try:
+        url = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+        resp = requests.get(url, timeout=15)
         if resp.status_code == 200:
-            data = resp.json()
-            for item in data:
+            for item in resp.json():
                 code = item.get("Code", "").strip()
                 name = item.get("Name", "").strip()
                 if code and name:
                     name_map[f"{code}.TW"] = name
-            print(f"  ✓ TWSE 取得 {len(name_map)} 筆上市股票名稱")
     except Exception as e:
-        print(f"  ✗ TWSE 查詢失敗: {e}")
-
-    # ── 上櫃股票（TPEx）──
+        print(f"  ✗ 備用查詢失敗: {e}")
     try:
-        url_tpex = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
-        resp = requests.get(url_tpex, timeout=15)
+        url = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
+        resp = requests.get(url, timeout=15)
         if resp.status_code == 200:
-            data = resp.json()
-            before = len(name_map)
-            for item in data:
+            for item in resp.json():
                 code = item.get("SecuritiesCompanyCode", "").strip()
                 name = item.get("CompanyName", "").strip()
                 if code and name:
                     name_map[f"{code}.TW"] = name
-            print(f"  ✓ TPEx 取得 {len(name_map) - before} 筆上櫃股票名稱")
     except Exception as e:
-        print(f"  ✗ TPEx 查詢失敗: {e}")
-
+        print(f"  ✗ TPEx 備用查詢失敗: {e}")
     return name_map
 
 
 def get_stock_name(ticker, official_names):
-    """
-    取得股票中文名稱。
-    優先使用官方名稱，若查不到才用代號本身作為備用。
-    """
-    name = official_names.get(ticker, "")
-    if name:
-        return name
-    # 備用：只顯示代號（去掉 .TW）
-    return ticker.replace(".TW", "")
+    """取得股票中文名稱，查不到時顯示代號"""
+    return official_names.get(ticker, ticker.replace(".TW", ""))
 
 
 def fetch_stock_data(tickers, official_names, period="60d"):
