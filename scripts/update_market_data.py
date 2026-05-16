@@ -9,42 +9,82 @@ import pandas as pd
 import numpy as np
 import json
 import os
+import requests
 from datetime import datetime, timedelta
 import time
 
 # ─────────────────────────────────────────
-# 族群定義
+# 族群定義（只需維護代號，名稱自動從官方查詢）
 # ─────────────────────────────────────────
 SECTORS = {
-    "玻璃基板": ["3522.TW", "3486.TW", "6504.TW", "4935.TW", "6146.TW", "6olean6.TW"],
-    "CoWoS先進封裝": ["3511.TW", "6770.TW", "6187.TW", "6573.TW", "6182.TW"],
-    "CPO光通訊": ["3023.TW", "3036.TW", "3163.TW", "6289.TW", "6150.TW"],
+    "玻璃基板": ["3522.TW", "3486.TW", "6504.TW", "4935.TW", "6146.TW", "5443.TW"],
+    "CoWoS先進封裝": ["3583.TW", "3131.TW", "6187.TW", "6640.TW", "6223.TW"],
+    "CPO光通訊": ["3363.TW", "3081.TW", "4979.TW", "3163.TW", "6442.TW"],
     "AI Server": ["3231.TW", "2382.TW", "2356.TW", "3706.TW", "2376.TW"],
-    "電源BBU": ["6703.TW", "6AES.TW", "2301.TW", "2308.TW"],
+    "電源BBU": ["6703.TW", "6728.TW", "2301.TW", "2308.TW"],
     "散熱": ["3017.TW", "3324.TW", "3653.TW"],
     "PCB高階載板": ["3037.TW", "8046.TW", "3189.TW", "8358.TW", "2383.TW"],
-}
-
-# 股票代號對應名稱（手動維護，避免 API 查詢失敗）
-STOCK_NAMES = {
-    "3522.TW": "雷科", "3486.TW": "東捷", "6504.TW": "群翊",
-    "4935.TW": "鈦昇", "6146.TW": "由田", "3511.TW": "辛耘",
-    "6770.TW": "弘塑", "6187.TW": "萬潤", "6573.TW": "均華",
-    "6182.TW": "旺矽", "3023.TW": "上詮", "3036.TW": "聯亞",
-    "3163.TW": "華星光", "6289.TW": "波若威", "6150.TW": "光聖",
-    "3231.TW": "緯創", "2382.TW": "廣達", "2356.TW": "英業達",
-    "3706.TW": "神達", "2376.TW": "技嘉", "6703.TW": "新盛力",
-    "2301.TW": "光寶科", "2308.TW": "台達電", "3017.TW": "奇鋐",
-    "3324.TW": "雙鴻", "3653.TW": "健策", "3037.TW": "欣興",
-    "8046.TW": "南電", "3189.TW": "景碩", "2383.TW": "台光電",
-    "8358.TW": "金居",
 }
 
 # 所有股票代號
 ALL_TICKERS = list(set([t for tickers in SECTORS.values() for t in tickers]))
 
 
-def fetch_stock_data(tickers, period="60d"):
+def fetch_official_stock_names():
+    """
+    從 TWSE + TPEx 官方 API 取得股票中文名稱對照表。
+    上市股票用 TWSE，上櫃股票用 TPEx。
+    回傳格式：{"2330.TW": "台積電", "3037.TW": "欣興", ...}
+    """
+    name_map = {}
+
+    # ── 上市股票（TWSE）──
+    try:
+        url_twse = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
+        resp = requests.get(url_twse, timeout=15)
+        if resp.status_code == 200:
+            data = resp.json()
+            for item in data:
+                code = item.get("Code", "").strip()
+                name = item.get("Name", "").strip()
+                if code and name:
+                    name_map[f"{code}.TW"] = name
+            print(f"  ✓ TWSE 取得 {len(name_map)} 筆上市股票名稱")
+    except Exception as e:
+        print(f"  ✗ TWSE 查詢失敗: {e}")
+
+    # ── 上櫃股票（TPEx）──
+    try:
+        url_tpex = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
+        resp = requests.get(url_tpex, timeout=15)
+        if resp.status_code == 200:
+            data = resp.json()
+            before = len(name_map)
+            for item in data:
+                code = item.get("SecuritiesCompanyCode", "").strip()
+                name = item.get("CompanyName", "").strip()
+                if code and name:
+                    name_map[f"{code}.TW"] = name
+            print(f"  ✓ TPEx 取得 {len(name_map) - before} 筆上櫃股票名稱")
+    except Exception as e:
+        print(f"  ✗ TPEx 查詢失敗: {e}")
+
+    return name_map
+
+
+def get_stock_name(ticker, official_names):
+    """
+    取得股票中文名稱。
+    優先使用官方名稱，若查不到才用代號本身作為備用。
+    """
+    name = official_names.get(ticker, "")
+    if name:
+        return name
+    # 備用：只顯示代號（去掉 .TW）
+    return ticker.replace(".TW", "")
+
+
+def fetch_stock_data(tickers, official_names, period="60d"):
     """抓取股票歷史資料"""
     print(f"[INFO] 抓取 {len(tickers)} 檔股票資料...")
     data = {}
@@ -54,7 +94,8 @@ def fetch_stock_data(tickers, period="60d"):
             hist = stock.history(period=period)
             if not hist.empty:
                 data[ticker] = hist
-                print(f"  ✓ {ticker} ({STOCK_NAMES.get(ticker, ticker)})")
+                name = get_stock_name(ticker, official_names)
+                print(f"  ✓ {ticker} ({name})")
             else:
                 print(f"  ✗ {ticker} 無資料")
             time.sleep(0.3)  # 避免請求過快
@@ -85,7 +126,7 @@ def calculate_indicators(hist_df):
     return df
 
 
-def get_latest_data(ticker, df):
+def get_latest_data(ticker, df, official_names):
     """取得最新一日的分析資料"""
     if df is None or len(df) < 21:
         return None
@@ -143,7 +184,7 @@ def get_latest_data(ticker, df):
 
     return {
         "ticker": ticker,
-        "name": STOCK_NAMES.get(ticker, ticker),
+        "name": get_stock_name(ticker, official_names),
         "close": round(close, 2),
         "change_pct": round(change_pct, 2),
         "volume": int(vol),
@@ -306,15 +347,20 @@ def main():
     print(f"執行時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
 
+    # 從官方 API 取得正確股票名稱
+    print("\n[INFO] 從 TWSE/TPEx 官方 API 取得股票名稱...")
+    official_names = fetch_official_stock_names()
+    print(f"  共取得 {len(official_names)} 筆官方股票名稱")
+
     # 抓取資料
-    raw_data = fetch_stock_data(ALL_TICKERS)
+    raw_data = fetch_stock_data(ALL_TICKERS, official_names)
 
     # 計算技術指標
     print("\n[INFO] 計算技術指標...")
     processed = {}
     for ticker, hist in raw_data.items():
         df = calculate_indicators(hist)
-        stock_info = get_latest_data(ticker, df)
+        stock_info = get_latest_data(ticker, df, official_names)
         if stock_info:
             processed[ticker] = stock_info
 
