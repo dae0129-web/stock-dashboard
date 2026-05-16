@@ -3,199 +3,234 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>台股盤後市場結構觀測系統</title>
+  <title>台股盤後市場結構觀測</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Noto Sans TC', sans-serif; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-
-    /* 背景 */
-    .bg-dashboard {
-      background: #0d1117;
-      min-height: 100vh;
+    :root {
+      --bg:        #f5f4f0;
+      --surface:   #ffffff;
+      --border:    #e8e4dd;
+      --border2:   #d5cfc5;
+      --text:      #1a1915;
+      --muted:     #7a7568;
+      --faint:     #a8a099;
+      --up:        #c0392b;
+      --down:      #1a6b3a;
+      --accent:    #2c5f8a;
+      --gold:      #9a6f20;
+      --warning:   #a84f1a;
     }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* 細線分隔 */
+    .divider { border-color: var(--border); }
 
     /* 卡片 */
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .card-inner {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
     }
 
-    /* 標籤樣式 */
+    /* 標籤 */
     .tag {
       display: inline-block;
-      padding: 2px 10px;
-      border-radius: 999px;
-      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
       font-weight: 500;
+      letter-spacing: 0.02em;
     }
-    .tag-breakout    { background: #1a3a2a; color: #3fb950; border: 1px solid #238636; }
-    .tag-second      { background: #1a2a3a; color: #79c0ff; border: 1px solid #1f6feb; }
-    .tag-supplement  { background: #2a2a1a; color: #e3b341; border: 1px solid #9e6a03; }
-    .tag-hot         { background: #3a1a1a; color: #f85149; border: 1px solid #da3633; }
-    .tag-weak        { background: #2a1a2a; color: #d2a8ff; border: 1px solid #6e40c9; }
-    .tag-watch       { background: #1c2128; color: #8b949e; border: 1px solid #30363d; }
+    .tag-breakout   { background: #e8f3ec; color: #1a6b3a; border: 1px solid #b8ddc4; }
+    .tag-second     { background: #e8eef5; color: #2c5f8a; border: 1px solid #b8cfe0; }
+    .tag-supplement { background: #f5f0e3; color: #9a6f20; border: 1px solid #ddd0a8; }
+    .tag-hot        { background: #f5e8e6; color: #c0392b; border: 1px solid #e0b8b4; }
+    .tag-weak       { background: #f0ebf5; color: #6b3a8a; border: 1px solid #d0b8e0; }
+    .tag-watch      { background: #f0ede8; color: #7a7568; border: 1px solid #d5cfc5; }
 
-    /* 位階標籤 */
-    .pos-early   { background: #1a3a2a; color: #3fb950; }
-    .pos-mid     { background: #2a2a1a; color: #e3b341; }
-    .pos-hot     { background: #3a1a1a; color: #f85149; }
-    .pos-pullback{ background: #1a2a3a; color: #79c0ff; }
-    .pos-weak    { background: #2a1a2a; color: #d2a8ff; }
-    .pos-default { background: #1c2128; color: #8b949e; }
+    /* 位階 */
+    .pos-early    { background: #e8f3ec; color: #1a6b3a; }
+    .pos-pullback { background: #e8eef5; color: #2c5f8a; }
+    .pos-mid      { background: #f5f0e3; color: #9a6f20; }
+    .pos-hot      { background: #f5e8e6; color: #c0392b; }
+    .pos-weak     { background: #f0ebf5; color: #6b3a8a; }
+    .pos-default  { background: #f0ede8; color: #7a7568; }
 
-    /* 分數顏色 */
-    .score-high   { color: #3fb950; }
-    .score-mid    { color: #e3b341; }
-    .score-low    { color: #f85149; }
+    /* 漲跌 */
+    .up   { color: var(--up); }
+    .down { color: var(--down); }
+    .flat { color: var(--muted); }
 
-    /* 族群強度 bar */
-    .strength-bar {
-      height: 6px;
-      border-radius: 3px;
-      background: #30363d;
+    /* 評分顏色 */
+    .score-high { color: #1a6b3a; }
+    .score-mid  { color: #9a6f20; }
+    .score-low  { color: #c0392b; }
+
+    /* 強度條 */
+    .bar-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
       overflow: hidden;
     }
-    .strength-fill {
+    .bar-fill {
       height: 100%;
-      border-radius: 3px;
-      transition: width 0.8s ease;
+      border-radius: 2px;
+      transition: width 1s ease;
     }
+    .bar-gold   { background: #c9930a; }
+    .bar-green  { background: #1a6b3a; }
+    .bar-blue   { background: #2c5f8a; }
+    .bar-gray   { background: #c5bfb5; }
 
-    /* 漲跌色 */
-    .up   { color: #f85149; }
-    .down { color: #3fb950; }
-    .flat { color: #8b949e; }
+    /* 族群狀態顏色 */
+    .status-main  { color: #9a6f20; font-weight: 600; }
+    .status-flow  { color: #1a6b3a; font-weight: 500; }
+    .status-watch { color: #2c5f8a; }
+    .status-none  { color: var(--faint); }
 
-    /* 表格 row hover */
-    .table-row:hover { background: #1c2128; }
+    /* 表格 row */
+    .trow { border-bottom: 1px solid var(--border); }
+    .trow:last-child { border-bottom: none; }
+    .trow:hover { background: var(--bg); }
 
-    /* Pulse 動畫 */
-    @keyframes pulse-dot {
+    /* 小動畫 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+    /* 即時點 */
+    @keyframes blink {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
     }
     .live-dot {
-      width: 8px; height: 8px;
+      width: 6px; height: 6px;
       border-radius: 50%;
-      background: #3fb950;
-      animation: pulse-dot 2s infinite;
+      background: #1a6b3a;
+      animation: blink 2s infinite;
+      display: inline-block;
     }
 
-    /* 捲動條 */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #161b22; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+    /* 捲軸 */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+    /* Section 標題 */
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
   </style>
 </head>
-<body class="bg-dashboard text-gray-300">
+<body>
 
   <!-- Header -->
-  <header class="border-b border-gray-800 px-6 py-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-between">
+  <header style="background:var(--surface); border-bottom:1px solid var(--border);" class="px-6 py-4 sticky top-0 z-10">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-blue-500 flex items-center justify-center">
-          <span class="text-white text-sm font-bold">市</span>
+        <div style="width:32px;height:32px;background:var(--text);border-radius:6px;"
+             class="flex items-center justify-center">
+          <span style="color:var(--bg);font-size:13px;font-weight:700;">市</span>
         </div>
         <div>
-          <h1 class="text-white font-bold text-lg leading-tight">台股盤後市場結構觀測</h1>
-          <p class="text-gray-500 text-xs">Market Structure Dashboard</p>
+          <div style="font-size:15px;font-weight:700;color:var(--text);">台股盤後市場結構觀測</div>
+          <div style="font-size:11px;color:var(--faint);">Market Structure Dashboard</div>
         </div>
       </div>
       <div class="flex items-center gap-4">
         <div class="flex items-center gap-2">
-          <div class="live-dot"></div>
-          <span class="text-gray-400 text-sm" id="update-time">載入中...</span>
+          <span class="live-dot"></span>
+          <span style="font-size:12px;color:var(--muted);" id="update-time">載入中...</span>
         </div>
-        <span class="text-gray-600 text-xs" id="trade-date"></span>
+        <span style="font-size:11px;color:var(--faint);" id="trade-date"></span>
       </div>
     </div>
   </header>
 
-  <!-- Summary Bar -->
-  <div class="border-b border-gray-800 px-6 py-3">
-    <div class="max-w-7xl mx-auto flex items-center gap-8 text-sm">
+  <!-- Summary Strip -->
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);" class="px-6 py-2">
+    <div class="max-w-6xl mx-auto flex items-center gap-8" style="font-size:12px;">
       <div class="flex items-center gap-2">
-        <span class="text-gray-500">主流族群</span>
-        <span class="text-yellow-400 font-bold" id="top-sector">—</span>
+        <span style="color:var(--faint);">主流族群</span>
+        <span style="color:var(--gold);font-weight:600;" id="top-sector">—</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-gray-500">強勢股</span>
-        <span class="text-green-400 font-bold mono" id="strong-count">—</span>
+        <span style="color:var(--faint);">強勢股</span>
+        <span style="color:var(--down);font-weight:600;" class="mono" id="strong-count">—</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-gray-500">突破訊號</span>
-        <span class="text-blue-400 font-bold mono" id="breakout-count">—</span>
+        <span style="color:var(--faint);">突破訊號</span>
+        <span style="color:var(--accent);font-weight:600;" class="mono" id="breakout-count">—</span>
       </div>
       <div class="flex items-center gap-2">
-        <span class="text-gray-500">風險警示</span>
-        <span class="text-red-400 font-bold mono" id="risk-count">—</span>
+        <span style="color:var(--faint);">風險警示</span>
+        <span style="color:var(--up);font-weight:600;" class="mono" id="risk-count">—</span>
       </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-6 py-6 space-y-6">
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-6 py-6 space-y-5">
 
-    <!-- 區塊一：主流族群排行 -->
-    <section class="card p-5">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="text-yellow-400 text-lg">⚡</span>
-        <h2 class="text-white font-bold text-base">主流族群排行</h2>
-      </div>
-      <div id="sector-list" class="space-y-3"></div>
+    <!-- 族群排行 -->
+    <section class="card p-5 fade-in">
+      <div class="section-title">⚡ 主流族群排行</div>
+      <div id="sector-list" class="space-y-1"></div>
     </section>
 
-    <!-- 下排三欄 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- 區塊二：平台突破候選 -->
-      <section class="card p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-green-400 text-lg">🚀</span>
-          <h2 class="text-white font-bold text-base">平台突破候選</h2>
-        </div>
-        <div id="breakout-list" class="space-y-2"></div>
+    <!-- 三欄 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <section class="card p-5 fade-in">
+        <div class="section-title">🚀 平台突破候選</div>
+        <div id="breakout-list"></div>
       </section>
-
-      <!-- 區塊三：第二波觀察池 -->
-      <section class="card p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-blue-400 text-lg">🔄</span>
-          <h2 class="text-white font-bold text-base">第二波觀察池</h2>
-        </div>
-        <div id="second-wave-list" class="space-y-2"></div>
+      <section class="card p-5 fade-in">
+        <div class="section-title">🔄 第二波觀察池</div>
+        <div id="second-wave-list"></div>
       </section>
-
-      <!-- 區塊四：過熱與風險警示 -->
-      <section class="card p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-red-400 text-lg">⚠️</span>
-          <h2 class="text-white font-bold text-base">過熱與風險警示</h2>
-        </div>
-        <div id="risk-list" class="space-y-2"></div>
+      <section class="card p-5 fade-in">
+        <div class="section-title">⚠️ 過熱與風險警示</div>
+        <div id="risk-list"></div>
       </section>
-
     </div>
 
-    <!-- 區塊五：各族群強勢股明細 -->
-    <section class="card p-5">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="text-purple-400 text-lg">📊</span>
-        <h2 class="text-white font-bold text-base">各族群強勢股明細</h2>
-      </div>
-      <div id="stock-detail-list" class="space-y-4"></div>
+    <!-- 族群明細 -->
+    <section class="card p-5 fade-in">
+      <div class="section-title">📊 各族群強勢股明細</div>
+      <div id="stock-detail-list" class="space-y-6"></div>
     </section>
 
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-gray-800 px-6 py-4 mt-8">
-    <div class="max-w-7xl mx-auto text-center text-gray-600 text-xs">
-      本系統為盤後觀測工具，不提供買賣建議，不預測股價。資料來源：Yahoo Finance。
+  <footer style="border-top:1px solid var(--border);margin-top:32px;" class="px-6 py-4">
+    <div class="max-w-6xl mx-auto text-center" style="font-size:11px;color:var(--faint);">
+      本系統為盤後觀測工具，不提供買賣建議，不預測股價。資料來源：twstock / TWSE / TPEx。
     </div>
   </footer>
 

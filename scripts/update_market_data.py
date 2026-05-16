@@ -1,362 +1,220 @@
 """
 update_market_data.py
-台股盤後資料抓取主程式
+台股盤後資料抓取主程式 — 全面使用 twstock
 每日由 GitHub Actions 觸發執行
 """
 
-import yfinance as yf
-import pandas as pd
-import numpy as np
 import json
 import os
-import requests
-from datetime import datetime, timedelta
 import time
+from datetime import datetime, date
 
 # ─────────────────────────────────────────
-# 族群定義（只需維護代號，名稱自動從 twstock 查詢）
+# 族群定義（純數字代號）
 # ─────────────────────────────────────────
 SECTORS = {
-    "玻璃基板": ["3522.TW", "3486.TW", "6504.TW", "4935.TW", "6146.TW", "5443.TW"],
-    "CoWoS先進封裝": ["3583.TW", "3131.TW", "6187.TW", "6640.TW", "6223.TW"],
-    "CPO光通訊": ["3363.TW", "3081.TW", "4979.TW", "3163.TW", "6442.TW"],
-    "AI Server": ["3231.TW", "2382.TW", "2356.TW", "3706.TW", "2376.TW"],
-    "電源BBU": ["6703.TW", "6728.TW", "2301.TW", "2308.TW"],
-    "散熱": ["3017.TW", "3324.TW", "3653.TW"],
-    "PCB高階載板": ["3037.TW", "8046.TW", "3189.TW", "8358.TW", "2383.TW"],
+    "玻璃基板": ["3522", "3486", "6504", "4935", "6146", "5443"],
+    "CoWoS先進封裝": ["3583", "3131", "6187", "6640", "6223"],
+    "CPO光通訊": ["3363", "3081", "4979", "3163", "6442"],
+    "AI Server": ["3231", "2382", "2356", "3706", "2376"],
+    "電源BBU": ["6703", "6728", "2301", "2308"],
+    "散熱": ["3017", "3324", "3653"],
+    "PCB高階載板": ["3037", "8046", "3189", "8358", "2383"],
 }
 
-# 所有股票代號
-ALL_TICKERS = list(set([t for tickers in SECTORS.values() for t in tickers]))
+ALL_CODES = list(set([c for codes in SECTORS.values() for c in codes]))
 
 
-def fetch_official_stock_names():
-    """
-    使用 twstock 套件查詢台股官方股票名稱。
-    同時驗證代號是否存在，若代號錯誤會明確警告。
-    回傳格式：{"2330.TW": "台積電", ...}
-    """
-    try:
-        import twstock
-
-        # 先更新代號資料庫（GitHub Actions 每次都是全新環境，必須執行）
-        print("  正在更新 twstock 代號資料庫...")
-        twstock.__update_codes()
-        print("  ✓ 代號資料庫更新完成")
-
-        codes = twstock.codes
-        name_map = {}
-        print(f"  ✓ twstock 載入成功，共 {len(codes)} 筆股票資料")
-
-        # 驗證每一個代號
-        print("\n[INFO] 驗證股票代號...")
-        for ticker in ALL_TICKERS:
-            code = ticker.replace(".TW", "")
-            if code in codes:
-                info = codes[code]
-                if info.type == "股票":
-                    name_map[ticker] = info.name
-                    print(f"  ✓ {ticker} → {info.name} ({info.market})")
-                else:
-                    print(f"  ⚠ {ticker} 類型為 {info.type}，非一般股票，名稱：{info.name}")
-            else:
-                print(f"  ✗ {ticker} → 代號不存在！請確認是否正確")
-
-        return name_map
-
-    except ImportError:
-        print("  ✗ twstock 未安裝，改用備用方式查詢...")
-        return fetch_names_fallback()
-
-
-def fetch_names_fallback():
-    """備用：從 TWSE 官方 API 取得名稱（twstock 安裝失敗時使用）"""
+def get_all_names():
+    import twstock
+    print("  正在更新 twstock 代號資料庫...")
+    twstock.__update_codes()
+    print(f"  ✓ 載入完成，共 {len(twstock.codes)} 筆")
     name_map = {}
-    try:
-        url = "https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL"
-        resp = requests.get(url, timeout=15)
-        if resp.status_code == 200:
-            for item in resp.json():
-                code = item.get("Code", "").strip()
-                name = item.get("Name", "").strip()
-                if code and name:
-                    name_map[f"{code}.TW"] = name
-    except Exception as e:
-        print(f"  ✗ 備用查詢失敗: {e}")
-    try:
-        url = "https://www.tpex.org.tw/openapi/v1/tpex_mainboard_daily_close_quotes"
-        resp = requests.get(url, timeout=15)
-        if resp.status_code == 200:
-            for item in resp.json():
-                code = item.get("SecuritiesCompanyCode", "").strip()
-                name = item.get("CompanyName", "").strip()
-                if code and name:
-                    name_map[f"{code}.TW"] = name
-    except Exception as e:
-        print(f"  ✗ TPEx 備用查詢失敗: {e}")
+    for code in ALL_CODES:
+        if code in twstock.codes:
+            info = twstock.codes[code]
+            name_map[code] = info.name
+            print(f"  ✓ {code} → {info.name} ({info.market})")
+        else:
+            name_map[code] = code
+            print(f"  ✗ {code} → 代號不存在！")
     return name_map
 
 
-def get_stock_name(ticker, official_names):
-    """取得股票中文名稱，查不到時顯示代號"""
-    return official_names.get(ticker, ticker.replace(".TW", ""))
-
-
-def fetch_stock_data(tickers, official_names, period="60d"):
-    """抓取股票歷史資料"""
-    print(f"[INFO] 抓取 {len(tickers)} 檔股票資料...")
-    data = {}
-    for ticker in tickers:
-        try:
-            stock = yf.Ticker(ticker)
-            hist = stock.history(period=period)
-            if not hist.empty:
-                data[ticker] = hist
-                name = get_stock_name(ticker, official_names)
-                print(f"  ✓ {ticker} ({name})")
-            else:
-                print(f"  ✗ {ticker} 無資料")
-            time.sleep(0.3)  # 避免請求過快
-        except Exception as e:
-            print(f"  ✗ {ticker} 錯誤: {e}")
-    return data
-
-
-def calculate_indicators(hist_df):
-    """計算技術指標"""
-    df = hist_df.copy()
-
-    # 均線
-    df["MA5"] = df["Close"].rolling(5).mean()
-    df["MA20"] = df["Close"].rolling(20).mean()
-    df["MA60"] = df["Close"].rolling(60).mean()
-
-    # 5日均量
-    df["Vol5"] = df["Volume"].rolling(5).mean()
-
-    # MACD
-    ema12 = df["Close"].ewm(span=12, adjust=False).mean()
-    ema26 = df["Close"].ewm(span=26, adjust=False).mean()
-    df["MACD"] = ema12 - ema26
-    df["Signal"] = df["MACD"].ewm(span=9, adjust=False).mean()
-    df["MACD_Hist"] = df["MACD"] - df["Signal"]
-
-    return df
-
-
-def get_latest_data(ticker, df, official_names):
-    """取得最新一日的分析資料"""
-    if df is None or len(df) < 21:
+def fetch_stock_history(code, name):
+    from twstock import Stock
+    try:
+        stock = Stock(code)
+        today = date.today()
+        stock.fetch_from(today.year, max(1, today.month - 2))
+        time.sleep(0.8)
+        if not stock.price or len(stock.price) < 5:
+            print(f"  ✗ {code} ({name}) 資料不足")
+            return None
+        print(f"  ✓ {code} ({name}) 共 {len(stock.price)} 筆")
+        return {
+            "code": code,
+            "name": name,
+            "prices": stock.price,
+            "volumes": stock.capacity,
+            "dates": [str(d.date()) if hasattr(d, 'date') else str(d) for d in stock.date],
+        }
+    except Exception as e:
+        print(f"  ✗ {code} ({name}) 錯誤: {e}")
         return None
 
-    latest = df.iloc[-1]
-    prev = df.iloc[-2] if len(df) >= 2 else latest
 
-    close = latest["Close"]
-    ma20 = latest["MA20"]
-    ma5 = latest["MA5"]
-    ma60 = latest["MA60"]
-    vol = latest["Volume"]
-    vol5 = latest["Vol5"]
-    macd_hist = latest["MACD_Hist"]
-    prev_macd_hist = prev["MACD_Hist"]
+def ma(data, period):
+    result = [None] * len(data)
+    for i in range(period - 1, len(data)):
+        window = data[i - period + 1:i + 1]
+        if all(v is not None for v in window):
+            result[i] = sum(window) / period
+    return result
 
-    # 漲跌幅
-    change_pct = ((close - prev["Close"]) / prev["Close"] * 100) if prev["Close"] > 0 else 0
 
-    # 距月線%
-    dist_ma20 = ((close - ma20) / ma20 * 100) if ma20 > 0 else 0
+def ema_calc(data, span):
+    k = 2 / (span + 1)
+    result = [None] * len(data)
+    for i, v in enumerate(data):
+        if v is None:
+            continue
+        prev = next((result[j] for j in range(i - 1, -1, -1) if result[j] is not None), None)
+        result[i] = v if prev is None else v * k + prev * (1 - k)
+    return result
 
-    # 量比（今日量 / 5日均量）
-    vol_ratio = (vol / vol5) if vol5 > 0 else 1
 
-    # 是否收紅
-    is_red = close > prev["Close"]
-
-    # MACD 翻正
-    macd_positive = macd_hist > 0
-    macd_cross_up = macd_hist > 0 and prev_macd_hist <= 0
-
-    # 位階判斷
-    def get_position_level(dist):
-        if dist < -3:
-            # 檢查是否連續跌破月線 3 日
-            recent = df.tail(5)
-            below_ma20_days = sum(recent["Close"] < recent["MA20"])
-            if below_ma20_days >= 3:
-                return "轉弱區"
-            return "月線下方"
-        elif dist <= 5:
-            return "主升初期"
-        elif dist <= 15:
-            return "回檔再攻" if change_pct < 0 else "主升中段"
-        elif dist <= 25:
-            return "主升中段"
-        else:
-            return "過熱區"
-
-    position = get_position_level(dist_ma20)
-
-    # 漲停判斷（台股漲停 ≈ +10%）
-    is_limit_up = change_pct >= 9.5
-
+def calculate_indicators(hist):
+    prices  = hist["prices"]
+    volumes = hist["volumes"]
+    ma5_list  = ma(prices, 5)
+    ma20_list = ma(prices, 20)
+    ma60_list = ma(prices, 60)
+    vol5_list = ma(volumes, 5)
+    ema12 = ema_calc(prices, 12)
+    ema26 = ema_calc(prices, 26)
+    macd_line = [
+        (a - b) if a is not None and b is not None else None
+        for a, b in zip(ema12, ema26)
+    ]
+    signal_line = ema_calc(macd_line, 9)
+    macd_hist_list = [
+        (m - s) if m is not None and s is not None else None
+        for m, s in zip(macd_line, signal_line)
+    ]
     return {
-        "ticker": ticker,
-        "name": get_stock_name(ticker, official_names),
-        "close": round(close, 2),
-        "change_pct": round(change_pct, 2),
-        "volume": int(vol),
-        "vol5": int(vol5) if not np.isnan(vol5) else 0,
-        "vol_ratio": round(vol_ratio, 2),
-        "ma5": round(ma5, 2) if not np.isnan(ma5) else None,
-        "ma20": round(ma20, 2) if not np.isnan(ma20) else None,
-        "ma60": round(ma60, 2) if not np.isnan(ma60) else None,
-        "dist_ma20": round(dist_ma20, 2),
-        "macd_positive": bool(macd_positive),
-        "macd_cross_up": bool(macd_cross_up),
-        "is_red": bool(is_red),
-        "is_limit_up": bool(is_limit_up),
-        "position": position,
+        "ma5": ma5_list, "ma20": ma20_list, "ma60": ma60_list,
+        "vol5": vol5_list, "macd_hist": macd_hist_list,
     }
 
 
-def calculate_sector_score(sector_name, tickers, stock_data_map):
-    """計算族群強度分數"""
-    score = 0
-    details = []
-
-    valid_stocks = []
-    for ticker in tickers:
-        d = stock_data_map.get(ticker)
-        if d:
-            valid_stocks.append(d)
-
-    if not valid_stocks:
-        return 0, "非主流", []
-
-    # 條件1：≥3 檔上漲超過 3%
-    up3 = sum(1 for s in valid_stocks if s["change_pct"] >= 3)
-    if up3 >= 3:
-        score += 2
-        details.append(f"{up3} 檔漲幅 >3%")
-
-    # 條件2：≥2 檔成交量 > 5日均量 1.5 倍
-    vol_surge = sum(1 for s in valid_stocks if s["vol_ratio"] >= 1.5)
-    if vol_surge >= 2:
-        score += 2
-        details.append(f"{vol_surge} 檔爆量")
-
-    # 條件3：族群龍頭創 20 日新高（用第一檔作為龍頭代理）
-    leader_ticker = tickers[0]
-    leader_hist = None
-    for ticker in tickers:
-        if ticker in stock_data_map and stock_data_map[ticker]:
-            leader_hist = ticker
-            break
-
-    # 條件4：族群內有漲停股
-    limit_up = sum(1 for s in valid_stocks if s["is_limit_up"])
-    if limit_up > 0:
-        score += 2
-        details.append(f"{limit_up} 檔漲停")
-
-    # 條件5：多數個股站上月線
-    above_ma20 = sum(1 for s in valid_stocks if s["dist_ma20"] > 0)
-    if above_ma20 >= len(valid_stocks) * 0.6:
-        score += 1
-        details.append(f"{above_ma20}/{len(valid_stocks)} 站月線")
-
-    # 條件6：MACD 翻正個股數
-    macd_pos = sum(1 for s in valid_stocks if s["macd_positive"])
-    if macd_pos >= len(valid_stocks) * 0.5:
-        score += 1
-        details.append(f"{macd_pos} 檔 MACD 正")
-
-    # 族群狀態
-    if score >= 8:
-        status = "主流啟動"
-    elif score >= 6:
-        status = "資金回流"
-    elif score >= 4:
-        status = "觀察中"
+def get_latest(hist, ind):
+    prices  = hist["prices"]
+    volumes = hist["volumes"]
+    if len(prices) < 2:
+        return None
+    close  = prices[-1]
+    prev   = prices[-2]
+    vol    = volumes[-1]
+    ma5    = ind["ma5"][-1]
+    ma20   = ind["ma20"][-1]
+    ma60   = ind["ma60"][-1]
+    vol5   = ind["vol5"][-1]
+    macd_h = ind["macd_hist"][-1]
+    prev_macd_h = ind["macd_hist"][-2]
+    if ma20 is None or ma20 == 0:
+        return None
+    change_pct  = round((close - prev) / prev * 100, 2) if prev else 0
+    dist_ma20   = round((close - ma20) / ma20 * 100, 2)
+    vol_ratio   = round(vol / vol5, 2) if vol5 and vol5 > 0 else 1.0
+    is_red      = close >= prev
+    is_limit_up = change_pct >= 9.5
+    macd_positive = macd_h is not None and macd_h > 0
+    macd_cross_up = (macd_h is not None and prev_macd_h is not None
+                     and macd_h > 0 and prev_macd_h <= 0)
+    if dist_ma20 < -3:
+        recent_p  = prices[-5:]
+        recent_m  = ind["ma20"][-5:]
+        below_days = sum(1 for p, m in zip(recent_p, recent_m) if m and p < m)
+        position = "轉弱區" if below_days >= 3 else "月線下方"
+    elif dist_ma20 <= 5:
+        position = "主升初期"
+    elif dist_ma20 <= 15:
+        position = "回檔再攻" if change_pct < 0 else "主升中段"
+    elif dist_ma20 <= 25:
+        position = "主升中段"
     else:
-        status = "非主流"
+        position = "過熱區"
+    return {
+        "code": hist["code"], "name": hist["name"],
+        "close": round(close, 2), "change_pct": change_pct,
+        "volume": int(vol), "vol5": int(vol5) if vol5 else 0,
+        "vol_ratio": vol_ratio,
+        "ma5": round(ma5, 2) if ma5 else None,
+        "ma20": round(ma20, 2),
+        "ma60": round(ma60, 2) if ma60 else None,
+        "dist_ma20": dist_ma20,
+        "macd_positive": macd_positive, "macd_cross_up": macd_cross_up,
+        "is_red": is_red, "is_limit_up": is_limit_up,
+        "position": position,
+        "trade_date": hist["dates"][-1] if hist["dates"] else "",
+    }
 
+
+def calc_sector_score(stocks):
+    score, details = 0, []
+    if not stocks:
+        return 0, "非主流", []
+    up3 = sum(1 for s in stocks if s["change_pct"] >= 3)
+    if up3 >= 3: score += 2; details.append(f"{up3} 檔漲幅 >3%")
+    vol_surge = sum(1 for s in stocks if s["vol_ratio"] >= 1.5)
+    if vol_surge >= 2: score += 2; details.append(f"{vol_surge} 檔爆量")
+    limit_up = sum(1 for s in stocks if s["is_limit_up"])
+    if limit_up > 0: score += 2; details.append(f"{limit_up} 檔漲停")
+    above = sum(1 for s in stocks if s["dist_ma20"] > 0)
+    if above >= len(stocks) * 0.6: score += 1; details.append(f"{above}/{len(stocks)} 站月線")
+    macd_pos = sum(1 for s in stocks if s["macd_positive"])
+    if macd_pos >= len(stocks) * 0.5: score += 1; details.append(f"{macd_pos} 檔 MACD 正")
+    status = "主流啟動" if score >= 8 else "資金回流" if score >= 6 else "觀察中" if score >= 4 else "非主流"
     return score, status, details
 
 
-def calculate_stock_score(stock):
-    """計算個股強勢評分"""
+def calc_stock_score(s):
     score = 0
-
-    if stock["dist_ma20"] > 0:
-        score += 10  # 站上月線
-    if stock.get("ma5") and stock.get("ma20") and stock["ma5"] > stock["ma20"]:
-        score += 5   # 短均線向上
-    if stock.get("ma20") and stock.get("ma60") and stock["ma20"] > stock["ma60"]:
-        score += 10  # MA20 > MA60
-    if stock["macd_positive"]:
-        score += 10  # MACD 翻正
-    if stock["vol_ratio"] >= 1.5:
-        score += 15  # 成交量放大
-    if stock["dist_ma20"] > 25:
-        score -= 20  # 距月線過遠
-    if stock["change_pct"] <= -5 and stock["vol_ratio"] >= 2:
-        score -= 25  # 爆量長黑
-
+    if s["dist_ma20"] > 0: score += 10
+    if s["ma5"] and s["ma20"] and s["ma5"] > s["ma20"]: score += 5
+    if s["ma20"] and s["ma60"] and s["ma20"] > s["ma60"]: score += 10
+    if s["macd_positive"]: score += 10
+    if s["vol_ratio"] >= 1.5: score += 15
+    if s["dist_ma20"] > 25: score -= 20
+    if s["change_pct"] <= -5 and s["vol_ratio"] >= 2: score -= 25
     return max(0, min(100, score))
 
 
-def get_signal_labels(stock, sector_score, all_stocks_in_sector):
-    """判斷進場訊號標籤"""
+def score_label(score):
+    if score >= 85: return "強勢核心"
+    if score >= 70: return "強勢觀察"
+    if score >= 55: return "中性"
+    if score >= 40: return "偏弱"
+    return "避免觀察"
+
+
+def get_labels(s, sector_score, sector_stocks):
     labels = []
-
-    # 風險警示優先
-    if stock["dist_ma20"] > 30:
-        labels.append("過熱勿追")
-    if stock["position"] == "轉弱區":
-        labels.append("趨勢轉弱")
-    if stock["change_pct"] <= -5 and stock["vol_ratio"] >= 2:
-        labels.append("爆量長黑")
-
-    if labels:
-        return labels
-
-    # 正向訊號
-    if (stock["vol_ratio"] >= 1.5 and stock["is_red"] and
-            stock["dist_ma20"] > 0 and sector_score >= 6):
+    if s["dist_ma20"] > 30: labels.append("過熱勿追")
+    if s["position"] == "轉弱區": labels.append("趨勢轉弱")
+    if s["change_pct"] <= -5 and s["vol_ratio"] >= 2: labels.append("爆量長黑")
+    if labels: return labels
+    if s["vol_ratio"] >= 1.5 and s["is_red"] and s["dist_ma20"] > 0 and sector_score >= 6:
         labels.append("平台突破")
-
-    if (stock["dist_ma20"] >= -5 and stock["dist_ma20"] <= 5 and
-            stock["is_red"] and stock["vol_ratio"] < 1.2):
+    if s["dist_ma20"] >= -5 and s["dist_ma20"] <= 5 and s["is_red"] and s["vol_ratio"] < 1.2:
         labels.append("回月線轉強")
-
-    # 補漲候選（同族群有龍頭創高，個股尚未創高但站月線）
-    sector_leaders_high = any(
-        s["change_pct"] >= 5 for s in all_stocks_in_sector
-        if s["ticker"] != stock["ticker"]
-    )
-    if (sector_leaders_high and stock["dist_ma20"] > 0 and
-            stock["dist_ma20"] < 15 and stock["vol_ratio"] >= 1.2):
+    leader_high = any(x["change_pct"] >= 5 for x in sector_stocks if x["code"] != s["code"])
+    if leader_high and s["dist_ma20"] > 0 and s["dist_ma20"] < 15 and s["vol_ratio"] >= 1.2:
         labels.append("補漲候選")
-
-    if not labels:
-        labels.append("觀察中")
-
+    if not labels: labels.append("觀察中")
     return labels
-
-
-def get_score_label(score):
-    if score >= 85:
-        return "強勢核心"
-    elif score >= 70:
-        return "強勢觀察"
-    elif score >= 55:
-        return "中性"
-    elif score >= 40:
-        return "偏弱"
-    else:
-        return "避免觀察"
 
 
 def main():
@@ -365,117 +223,72 @@ def main():
     print(f"執行時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
 
-    # 從官方 API 取得正確股票名稱
-    print("\n[INFO] 從 TWSE/TPEx 官方 API 取得股票名稱...")
-    official_names = fetch_official_stock_names()
-    print(f"  共取得 {len(official_names)} 筆官方股票名稱")
+    print("\n[INFO] 從 twstock 取得股票名稱...")
+    name_map = get_all_names()
 
-    # 抓取資料
-    raw_data = fetch_stock_data(ALL_TICKERS, official_names)
+    print(f"\n[INFO] 抓取 {len(ALL_CODES)} 檔股票資料...")
+    histories = {}
+    for code in ALL_CODES:
+        hist = fetch_stock_history(code, name_map.get(code, code))
+        if hist:
+            histories[code] = hist
 
-    # 計算技術指標
     print("\n[INFO] 計算技術指標...")
     processed = {}
-    for ticker, hist in raw_data.items():
-        df = calculate_indicators(hist)
-        stock_info = get_latest_data(ticker, df, official_names)
-        if stock_info:
-            processed[ticker] = stock_info
+    for code, hist in histories.items():
+        ind = calculate_indicators(hist)
+        latest = get_latest(hist, ind)
+        if latest:
+            processed[code] = latest
 
-    # 計算族群強度
     print("\n[INFO] 計算族群強度...")
     sector_results = []
-    sector_score_map = {}
-
-    for sector_name, tickers in SECTORS.items():
-        score, status, details = calculate_sector_score(
-            sector_name, tickers, processed
-        )
-        sector_score_map[sector_name] = score
+    for sector_name, codes in SECTORS.items():
+        sector_stocks = [processed[c] for c in codes if c in processed]
+        score, status, details = calc_sector_score(sector_stocks)
         sector_results.append({
-            "name": sector_name,
-            "score": score,
-            "status": status,
-            "details": details,
-            "tickers": tickers,
+            "name": sector_name, "score": score,
+            "status": status, "details": details, "codes": codes,
         })
         print(f"  {sector_name}: {score}分 ({status})")
-
     sector_results.sort(key=lambda x: x["score"], reverse=True)
 
-    # 計算個股評分與訊號
     print("\n[INFO] 計算個股評分與訊號...")
     stock_results = []
-
     for sector in sector_results:
-        sector_name = sector["name"]
-        sector_score = sector["score"]
-        sector_stocks = [processed[t] for t in sector["tickers"] if t in processed]
+        sector_stocks = [processed[c] for c in sector["codes"] if c in processed]
+        for s in sector_stocks:
+            s["sector"] = sector["name"]
+            s["sector_score"] = sector["score"]
+            s["score"] = calc_stock_score(s)
+            s["score_label"] = score_label(s["score"])
+            s["labels"] = get_labels(s, sector["score"], sector_stocks)
+            stock_results.append(s)
 
-        for stock in sector_stocks:
-            score = calculate_stock_score(stock)
-            labels = get_signal_labels(stock, sector_score, sector_stocks)
-            stock["sector"] = sector_name
-            stock["score"] = score
-            stock["score_label"] = get_score_label(score)
-            stock["labels"] = labels
-            stock["sector_score"] = sector_score
-            stock_results.append(stock)
-
-    # 分類整理
-    second_wave = [s for s in stock_results if "回月線轉強" in s["labels"] or "補漲候選" in s["labels"]]
-    breakout = [s for s in stock_results if "平台突破" in s["labels"]]
+    second_wave = [s for s in stock_results if any(l in s["labels"] for l in ["回月線轉強", "補漲候選"])]
+    breakout    = [s for s in stock_results if "平台突破" in s["labels"]]
     risk_alerts = [s for s in stock_results if any(l in s["labels"] for l in ["過熱勿追", "趨勢轉弱", "爆量長黑"])]
 
-    # 產生 JSON
     update_time = datetime.now().strftime("%Y-%m-%d %H:%M")
-    trade_date = datetime.now().strftime("%Y-%m-%d")
+    trade_date  = datetime.now().strftime("%Y-%m-%d")
 
-    # market_report.json
-    market_report = {
-        "update_time": update_time,
-        "trade_date": trade_date,
-        "summary": {
-            "top_sector": sector_results[0]["name"] if sector_results else "-",
-            "top_sector_score": sector_results[0]["score"] if sector_results else 0,
-            "total_stocks": len(stock_results),
-            "strong_stocks": len([s for s in stock_results if s["score"] >= 70]),
-            "breakout_count": len(breakout),
-            "risk_count": len(risk_alerts),
-        }
-    }
-
-    # sector_ranking.json
-    sector_ranking = {
-        "update_time": update_time,
-        "sectors": sector_results
-    }
-
-    # stock_signals.json
-    stock_signals = {
-        "update_time": update_time,
-        "all_stocks": stock_results,
-        "second_wave": second_wave,
-        "breakout": breakout,
-        "risk_alerts": risk_alerts,
-    }
-
-    # 寫入檔案
     os.makedirs("data", exist_ok=True)
-
     with open("data/market_report.json", "w", encoding="utf-8") as f:
-        json.dump(market_report, f, ensure_ascii=False, indent=2)
-
+        json.dump({"update_time": update_time, "trade_date": trade_date,
+                   "summary": {"top_sector": sector_results[0]["name"] if sector_results else "-",
+                                "top_sector_score": sector_results[0]["score"] if sector_results else 0,
+                                "total_stocks": len(stock_results),
+                                "strong_stocks": len([s for s in stock_results if s["score"] >= 70]),
+                                "breakout_count": len(breakout),
+                                "risk_count": len(risk_alerts)}}, f, ensure_ascii=False, indent=2)
     with open("data/sector_ranking.json", "w", encoding="utf-8") as f:
-        json.dump(sector_ranking, f, ensure_ascii=False, indent=2)
-
+        json.dump({"update_time": update_time, "sectors": sector_results}, f, ensure_ascii=False, indent=2)
     with open("data/stock_signals.json", "w", encoding="utf-8") as f:
-        json.dump(stock_signals, f, ensure_ascii=False, indent=2)
+        json.dump({"update_time": update_time, "all_stocks": stock_results,
+                   "second_wave": second_wave, "breakout": breakout,
+                   "risk_alerts": risk_alerts}, f, ensure_ascii=False, indent=2)
 
     print("\n✅ 資料更新完成！")
-    print(f"  市場報告: data/market_report.json")
-    print(f"  族群排行: data/sector_ranking.json")
-    print(f"  股票訊號: data/stock_signals.json")
 
 
 if __name__ == "__main__":
