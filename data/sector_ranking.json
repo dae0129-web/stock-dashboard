@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "theme": "玻璃基板",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "CoWoS / 先進封裝",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "CPO / 光通訊",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "AI Server",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "電源 / BBU",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "散熱",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  },
+  {
+    "theme": "PCB / 高階載板",
+    "score": 0,
+    "status": "非主流",
+    "stocks_count": 0
+  }
+]

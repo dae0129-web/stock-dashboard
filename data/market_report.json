@@ -1,11 +1,229 @@
 {
-  "generated_at": "尚未更新，請先執行 GitHub Actions",
-  "sector_ranking": [],
-  "top_by_theme": {},
+  "generated_at": "2026-05-16 12:46:08",
+  "data_source": "stooq daily csv; TWSE/TPEx compatible symbol fallback",
+  "sector_ranking": [
+    {
+      "theme": "玻璃基板",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "CoWoS / 先進封裝",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "CPO / 光通訊",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "AI Server",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "電源 / BBU",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "散熱",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    },
+    {
+      "theme": "PCB / 高階載板",
+      "score": 0,
+      "status": "非主流",
+      "stocks_count": 0
+    }
+  ],
+  "top_by_theme": {
+    "玻璃基板": [],
+    "CoWoS / 先進封裝": [],
+    "CPO / 光通訊": [],
+    "AI Server": [],
+    "電源 / BBU": [],
+    "散熱": [],
+    "PCB / 高階載板": []
+  },
   "second_wave": [],
   "platform_breakouts": [],
   "hot_alerts": [],
   "all_stocks": [],
-  "errors": [],
+  "errors": [
+    {
+      "stock_id": "6207",
+      "stock_name": "雷科",
+      "error": "無法抓取 6207 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "8064",
+      "stock_name": "東捷",
+      "error": "無法抓取 8064 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6667",
+      "stock_name": "信紘科",
+      "error": "無法抓取 6667 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6274",
+      "stock_name": "台燿",
+      "error": "無法抓取 6274 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3455",
+      "stock_name": "由田",
+      "error": "無法抓取 3455 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "5443",
+      "stock_name": "均豪",
+      "error": "無法抓取 5443 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3583",
+      "stock_name": "辛耘",
+      "error": "無法抓取 3583 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3131",
+      "stock_name": "弘塑",
+      "error": "無法抓取 3131 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6187",
+      "stock_name": "萬潤",
+      "error": "無法抓取 6187 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6640",
+      "stock_name": "均華",
+      "error": "無法抓取 6640 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6223",
+      "stock_name": "旺矽",
+      "error": "無法抓取 6223 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3363",
+      "stock_name": "上詮",
+      "error": "無法抓取 3363 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3081",
+      "stock_name": "聯亞",
+      "error": "無法抓取 3081 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "4979",
+      "stock_name": "華星光",
+      "error": "無法抓取 4979 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3163",
+      "stock_name": "波若威",
+      "error": "無法抓取 3163 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6442",
+      "stock_name": "光聖",
+      "error": "無法抓取 6442 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3231",
+      "stock_name": "緯創",
+      "error": "無法抓取 3231 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2382",
+      "stock_name": "廣達",
+      "error": "無法抓取 2382 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2356",
+      "stock_name": "英業達",
+      "error": "無法抓取 2356 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3706",
+      "stock_name": "神達",
+      "error": "無法抓取 3706 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2376",
+      "stock_name": "技嘉",
+      "error": "無法抓取 2376 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "4931",
+      "stock_name": "新盛力",
+      "error": "無法抓取 4931 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "6781",
+      "stock_name": "AES-KY",
+      "error": "無法抓取 6781 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2301",
+      "stock_name": "光寶科",
+      "error": "無法抓取 2301 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2308",
+      "stock_name": "台達電",
+      "error": "無法抓取 2308 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3017",
+      "stock_name": "奇鋐",
+      "error": "無法抓取 3017 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3324",
+      "stock_name": "雙鴻",
+      "error": "無法抓取 3324 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3653",
+      "stock_name": "健策",
+      "error": "無法抓取 3653 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3037",
+      "stock_name": "欣興",
+      "error": "無法抓取 3037 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "8046",
+      "stock_name": "南電",
+      "error": "無法抓取 8046 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "3189",
+      "stock_name": "景碩",
+      "error": "無法抓取 3189 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "8358",
+      "stock_name": "金居",
+      "error": "無法抓取 8358 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    },
+    {
+      "stock_id": "2383",
+      "stock_name": "台光電",
+      "error": "無法抓取 2383 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+    }
+  ],
   "disclaimer": "本資料僅供盤後市場結構觀測，不構成投資建議。"
 }
