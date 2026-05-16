@@ -1,12 +1,11 @@
 {
-  "update_time": "2025-01-15 18:30",
-  "trade_date": "2025-01-15",
-  "summary": {
-    "top_sector": "玻璃基板",
-    "top_sector_score": 8,
-    "total_stocks": 28,
-    "strong_stocks": 6,
-    "breakout_count": 2,
-    "risk_count": 3
-  }
+  "generated_at": "尚未更新，請先執行 GitHub Actions",
+  "sector_ranking": [],
+  "top_by_theme": {},
+  "second_wave": [],
+  "platform_breakouts": [],
+  "hot_alerts": [],
+  "all_stocks": [],
+  "errors": [],
+  "disclaimer": "本資料僅供盤後市場結構觀測，不構成投資建議。"
 }
