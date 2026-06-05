@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-04 14:14:26",
+  "generated_at": "2026-06-05 14:06:45",
   "data_source": "stooq daily csv; TWSE/TPEx compatible symbol fallback",
   "sector_ranking": [
     {
@@ -192,7 +192,7 @@
     {
       "stock_id": "3324",
       "stock_name": "雙鴻",
-      "error": "無法抓取 3324 日線資料: Error tokenizing data. C error: Expected 1 fields in line 6, saw 2\n"
+      "error": "無法抓取 3324 日線資料: None"
     },
     {
       "stock_id": "3653",
