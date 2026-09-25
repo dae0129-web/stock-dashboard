@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24 16:22:45",
+  "generated_at": "2026-09-25 16:21:52",
   "data_source": "stooq daily csv; TWSE/TPEx compatible symbol fallback",
   "sector_ranking": [
     {
@@ -147,82 +147,82 @@
     {
       "stock_id": "2382",
       "stock_name": "廣達",
-      "error": "無法抓取 2382 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Read timed out. (read timeout=20)"
+      "error": "無法抓取 2382 日線資料: 404 Client Error: Not Found for url: https://stooq.com/q/d/l/?s=2382.two&i=d"
     },
     {
       "stock_id": "2356",
       "stock_name": "英業達",
-      "error": "無法抓取 2356 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2356.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc06363ed0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 2356 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2356.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1d2f90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3706",
       "stock_name": "神達",
-      "error": "無法抓取 3706 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3706.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0633b650>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3706 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3706.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1eccd0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "2376",
       "stock_name": "技嘉",
-      "error": "無法抓取 2376 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2376.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0636d050>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 2376 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2376.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1dfa90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "4931",
       "stock_name": "新盛力",
-      "error": "無法抓取 4931 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=4931.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0636cb10>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 4931 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=4931.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1e4550>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "6781",
       "stock_name": "AES-KY",
-      "error": "無法抓取 6781 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=6781.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0637cfd0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 6781 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=6781.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1d33d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "2301",
       "stock_name": "光寶科",
-      "error": "無法抓取 2301 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2301.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc063620d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 2301 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2301.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1ed310>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "2308",
       "stock_name": "台達電",
-      "error": "無法抓取 2308 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2308.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0638bb10>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 2308 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2308.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1df650>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3017",
       "stock_name": "奇鋐",
-      "error": "無法抓取 3017 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3017.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc06367e90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3017 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3017.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1ee8d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3324",
       "stock_name": "雙鴻",
-      "error": "無法抓取 3324 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3324.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc061a4850>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3324 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3324.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1ded90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3653",
       "stock_name": "健策",
-      "error": "無法抓取 3653 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3653.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc06388e90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3653 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3653.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1ee8d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3037",
       "stock_name": "欣興",
-      "error": "無法抓取 3037 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3037.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc061ad550>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3037 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3037.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1df990>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "8046",
       "stock_name": "南電",
-      "error": "無法抓取 8046 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=8046.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc0619fc10>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 8046 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=8046.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1eda90>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "3189",
       "stock_name": "景碩",
-      "error": "無法抓取 3189 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3189.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc061b61d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 3189 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=3189.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1e61d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "8358",
       "stock_name": "金居",
-      "error": "無法抓取 8358 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=8358.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc061ae4d0>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 8358 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=8358.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1fbe10>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     },
     {
       "stock_id": "2383",
       "stock_name": "台光電",
-      "error": "無法抓取 2383 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2383.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7fcc061a5390>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
+      "error": "無法抓取 2383 日線資料: HTTPSConnectionPool(host='stooq.com', port=443): Max retries exceeded with url: /q/d/l/?s=2383.two&i=d (Caused by ConnectTimeoutError(<HTTPSConnection(host='stooq.com', port=443) at 0x7f668b1b9850>, 'Connection to stooq.com timed out. (connect timeout=20)'))"
     }
   ],
   "disclaimer": "本資料僅供盤後市場結構觀測，不構成投資建議。"
